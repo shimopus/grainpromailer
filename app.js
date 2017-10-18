@@ -28,6 +28,13 @@ const upload = multer({ dest: path.join(__dirname, 'uploads') });
 dotenv.load({ path: '.env.example' });
 
 /**
+ * Services
+ */
+const agenda = require('./config/agenda');
+const Agendash = require('agendash');
+
+
+/**
  * Controllers (route handlers).
  */
 const homeController = require('./controllers/home');
@@ -89,7 +96,8 @@ app.use(passport.session());
 app.use(flash());
 app.use((req, res, next) => {
   if (req.path === '/api/upload' ||
-      req.path.startsWith("/emailCampaign/")) {
+      req.path.startsWith("/emailCampaign/") ||
+      req.path.startsWith("/agenda/")) {
     next();
   } else {
     lusca.csrf()(req, res, next);
@@ -138,7 +146,7 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.post('/emailCampaign/create', emailCampaignController.postCreateEmailCampaign);
-
+app.use('/agenda', Agendash(agenda));
 
 /**
  * API examples routes.

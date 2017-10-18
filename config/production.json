@@ -1,0 +1,6 @@
+{
+  "agenda": {
+    "queueName": "emailQueue",
+    "collectionName": "agendaJobs"
+  }
+}
