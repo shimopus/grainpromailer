@@ -2,5 +2,8 @@
   "agenda": {
     "queueName": "emailQueue",
     "collectionName": "agendaJobs"
+  },
+  "grainproadmin": {
+    "url": "http://grainproadmin.herokuapp.com"
   }
 }
