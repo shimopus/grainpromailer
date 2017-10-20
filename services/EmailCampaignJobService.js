@@ -145,10 +145,10 @@ function sendEmailJob(emailConfig, emailCampaign) {
     return new Promise((resolve, reject) => {
         console.dir(emailConfig);
         nodemailerMailgun.sendMail({
-            from: config.get("mailgun.from"),
+            from: {name: config.get("mailgun.from_name"), address: config.get("mailgun.from_email")},
             to: emailConfig.contactEmail,
             subject: config.get("mailgun.subject") + " " + moment(emailCampaign.plannedDate).format("DD.MM.YYYY"),
-            'h:Reply-To': config.get("mailgun.from"),
+            'h:Reply-To': config.get("mailgun.from_email"),
             html: addTrackingImage(emailConfig.email.buffer.toString('utf8'),
                 emailConfig.partnerId, emailCampaign.plannedDate, "OPEN"),
             attachments: [{
@@ -199,10 +199,10 @@ function addTrackingImage(content, partnerId, date, type) {
 
 function generateFileName(plannedDate, bidType, stationName, stationCode) {
     return moment(plannedDate).format("YYYYMMDD") +
-    " пшеница" +
-    (bidType === 'SELL' ? " продавцы" : " покупатели") +
-    stationName ? stationName : "" +
-    stationCode ? "(" + stationCode + ")": "" +
+        " пшеница" +
+        (bidType === 'SELL' ? " продавцы" : " покупатели") + " " +
+        (stationName ? stationName : "") +
+        (stationCode ? "(" + stationCode + ")" : "") +
         ".html"
 }
 
