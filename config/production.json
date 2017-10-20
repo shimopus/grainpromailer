@@ -4,6 +4,6 @@
     "collectionName": "agendaJobs"
   },
   "grainproadmin": {
-    "url": "http://grainproadmin.herokuapp.com"
+    "url": "http://grainpro.herokuapp.com"
   }
 }

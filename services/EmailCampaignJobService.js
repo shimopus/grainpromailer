@@ -136,8 +136,8 @@ function sendEmailJob(emailConfig, emailCampaign) {
 
     const auth = {
         auth: {
-            api_key: 'key-638ccf73b841613f3c2c11c4fbecaaac',
-            domain: 'sandboxb85be79ac56f481cb79bc140d43409c9.mailgun.org'
+            api_key: config.get("mailgun.api_key"),
+            domain: config.get("mailgun.domain")
         }
     };
 

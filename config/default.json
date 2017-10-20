@@ -5,5 +5,9 @@
   },
   "grainproadmin": {
     "url": null
+  },
+  "mailgun": {
+    "api_key": null,
+    "domain": null
   }
 }
