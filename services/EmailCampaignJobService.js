@@ -202,7 +202,7 @@ function generateFileName(plannedDate, bidType, stationName, stationCode) {
         " пшеница" +
         (bidType === 'SELL' ? " продавцы" : " покупатели") + " " +
         (stationName ? stationName : "") +
-        (stationCode ? "(" + stationCode + ")" : "") +
+        (stationCode ? ("(" + stationCode + ")") : "") +
         ".html"
 }
 
