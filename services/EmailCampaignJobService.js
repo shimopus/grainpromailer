@@ -1,7 +1,11 @@
 const agenda = require("../config/agenda");
+const moment = require("moment");
 const config = require("config");
 const restClient = require("../config/restClient");
 const Aigle = require('aigle');
+
+const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
 
 agenda.define("email campaign start", (job, done) => {
     emailCampaignSendingJob(job.attrs.data)
@@ -13,9 +17,10 @@ agenda.define("email campaign start", (job, done) => {
 });
 
 agenda.define("email send", (job, done) => {
-    let emailConfig = job.attrs.data;
+    let emailConfig = job.attrs.data.emailConfig;
+    let emailCampaign = job.attrs.data.emailCampaign;
 
-    sendEmailJob(emailConfig)
+    sendEmailJob(emailConfig, emailCampaign)
         .then(() => done())
         .catch((err) => {
             console.dir(err);
@@ -76,12 +81,18 @@ function emailCampaignSendingJob(emailCampaign) {
                 SELL: {}
             };
 
-            uniqueStations.BUY.map((stationCode) => {
-                uniqueTableFunctions.BUY[stationCode] = getTableForStationFunction(stationCode, "BUY");
-            });
+            uniqueStations.BUY.map((stationCode) =>
+                uniqueTableFunctions.BUY[stationCode] = Aigle.resolve({
+                    attachment: getTableForStationFunction(stationCode, "BUY"),
+                    email: getEmailForStationFunction(stationCode, "BUY")
+                }).parallel()
+            );
 
             uniqueStations.SELL.map((stationCode) => {
-                uniqueTableFunctions.SELL[stationCode] = getTableForStationFunction(stationCode, "SELL");
+                uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
+                    attachment: getTableForStationFunction(stationCode, "SELL"),
+                    email: getEmailForStationFunction(stationCode, "SELL")
+                }).parallel()
             });
 
             console.log("2. Unique functions");
@@ -102,7 +113,8 @@ function emailCampaignSendingJob(emailCampaign) {
                 let subscriptionType = subscriptionConfig.subscriptionType;
                 let stationCode = subscriptionConfig.stationCode;
 
-                subscriptionConfig.table = uniqueTables[subscriptionType][stationCode].data.toString("utf8");
+                subscriptionConfig.attachment = uniqueTables[subscriptionType][stationCode].attachment.data;
+                subscriptionConfig.email = uniqueTables[subscriptionType][stationCode].email.data;
             });
 
             return subscriptionConfigs;
@@ -111,17 +123,50 @@ function emailCampaignSendingJob(emailCampaign) {
         //далее создать джобы на отсылку
         .then((subscriptionConfigs) => {
             subscriptionConfigs.forEach((subscriptionConfig) => {
-                agenda.now("email send", subscriptionConfig);
+                agenda.now("email send", {
+                    emailConfig: subscriptionConfig,
+                    emailCampaign: emailCampaign
+                });
             });
         });
 }
 
-function sendEmailJob(emailConfig) {
+function sendEmailJob(emailConfig, emailCampaign) {
     console.log("Sending mail");
 
+    const auth = {
+        auth: {
+            api_key: 'key-638ccf73b841613f3c2c11c4fbecaaac',
+            domain: 'sandboxb85be79ac56f481cb79bc140d43409c9.mailgun.org'
+        }
+    };
+
+    let nodemailerMailgun = nodemailer.createTransport(mg(auth));
     return new Promise((resolve, reject) => {
         console.dir(emailConfig);
-        resolve();
+        nodemailerMailgun.sendMail({
+            from: 'shimopus@gmail.com',
+            to: emailConfig.contactEmail,
+            subject: 'Hey you, awesome!',
+            'h:Reply-To': 'shimopus@gmail.com',
+            html: addTrackingImage(emailConfig.email.buffer.toString('utf8'),
+                emailConfig.partnerId, emailCampaign.plannedDate, "OPEN"),
+            attachments: [{
+                filename: 'title.html',
+                content: addTrackingImage(emailConfig.attachment.buffer.toString('utf8'),
+                    emailConfig.partnerId, emailCampaign.plannedDate, "FILE_OPEN"),
+            }]
+        }, function (err, info) {
+            if (err) {
+                console.log('Error: ' + err);
+                reject(err);
+            }
+            else {
+                console.log('Response: ');
+                console.dir(info);
+                resolve();
+            }
+        });
     });
 }
 
@@ -129,6 +174,27 @@ function getTableForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/download?code=" + stationCode +
         "&bidType=" + subscriptionType);
+}
+
+function getEmailForStationFunction(stationCode, subscriptionType) {
+    return restClient.getPromise(config.get("grainproadmin.url")
+        + "/pages/market-table/email-inside?code=" + stationCode +
+        "&bidType=" + subscriptionType);
+}
+
+function addTrackingImage(content, partnerId, date, type) {
+    content = "<div><img width=\"1px\" height=\"1px\" src=\"" +
+        config.get("grainproadmin.url") +
+        "/tracking/image/" +
+        partnerId + "" +
+        "/1x1.gif?date=" +
+        moment(date).format("DD-MM-YYYY") +
+        "&type=" +
+        type +
+        "\"/></div>" +
+        content;
+
+    return content;
 }
 
 module.exports = {
