@@ -8,6 +8,9 @@
   },
   "mailgun": {
     "api_key": null,
-    "domain": null
+    "domain": null,
+    "from": "p@grain.pro",
+    "subject": "GRAIN.PRO - Цены на пшеницу"
+    "filename": ""
   }
 }
