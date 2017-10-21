@@ -149,8 +149,7 @@ function sendEmailJob(emailConfig, emailCampaign) {
             to: emailConfig.contactEmail,
             subject: config.get("mailgun.subject") + " " + moment(emailCampaign.plannedDate).format("DD.MM.YYYY"),
             'h:Reply-To': config.get("mailgun.from_email"),
-            'o:tag' : 'email campaign',
-            'o:tag' : 'email campaign ' + moment(emailCampaign.plannedDate).format("DD.MM.YYYY"),
+            'o:tag' : ['email campaign', 'email campaign ' + moment(emailCampaign.plannedDate).format("DD.MM.YYYY")],
             html: addTrackingImage(emailConfig.email.buffer.toString('utf8'),
                 emailConfig.partnerId, emailCampaign.plannedDate, "OPEN"),
             attachments: [{
