@@ -153,7 +153,7 @@ function sendEmailJob(emailConfig, emailCampaign) {
             html: addTrackingImage(emailConfig.email.buffer.toString('utf8'),
                 emailConfig.partnerId, emailCampaign.plannedDate, "OPEN"),
             attachments: [{
-                filename: generateFileName(emailCampaign.plannedDate, emailConfig.stationName, emailConfig.stationCode),
+                filename: generateFileName(emailCampaign.plannedDate, emailConfig.subscriptionType, emailConfig.stationName, emailConfig.stationCode),
                 content: addTrackingImage(emailConfig.attachment.buffer.toString('utf8'),
                     emailConfig.partnerId, emailCampaign.plannedDate, "FILE_OPEN"),
             }]
@@ -163,8 +163,7 @@ function sendEmailJob(emailConfig, emailCampaign) {
                 reject(err);
             }
             else {
-                console.log('!!! Response: ' +
-                generateFileName(emailCampaign.plannedDate, emailConfig.stationName, emailConfig.stationCode));
+                console.log('Response: ');
                 console.dir(info);
                 resolve();
             }
@@ -182,7 +181,7 @@ function getEmailForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/email-inside?code=" + stationCode +
         "&bidType=" + subscriptionType +
-        "&rowslimit=" + config.get("mailgun.emailTableRowsLimit"));
+        "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"));
 }
 
 function addTrackingImage(content, partnerId, date, type) {
@@ -201,8 +200,6 @@ function addTrackingImage(content, partnerId, date, type) {
 }
 
 function generateFileName(plannedDate, bidType, stationName, stationCode) {
-    console.log("!!!!!!!!!!!!!!!!!!!!! station name !!!!!!!!!!!!!!!!!!!! " + stationName);
-
     return moment(plannedDate).format("YYYYMMDD")
         + " пшеница "
         + (bidType === 'SELL' ? "продавцы" : "покупатели")
