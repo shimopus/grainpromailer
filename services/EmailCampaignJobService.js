@@ -163,7 +163,8 @@ function sendEmailJob(emailConfig, emailCampaign) {
                 reject(err);
             }
             else {
-                console.log('Response: ');
+                console.log('!!! Response: ' +
+                generateFileName(emailCampaign.plannedDate, emailConfig.stationName, emailConfig.stationCode));
                 console.dir(info);
                 resolve();
             }
@@ -180,7 +181,8 @@ function getTableForStationFunction(stationCode, subscriptionType) {
 function getEmailForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/email-inside?code=" + stationCode +
-        "&bidType=" + subscriptionType);
+        "&bidType=" + subscriptionType +
+        "&rowslimit=" + config.get("mailgun.emailTableRowsLimit"));
 }
 
 function addTrackingImage(content, partnerId, date, type) {
@@ -199,12 +201,14 @@ function addTrackingImage(content, partnerId, date, type) {
 }
 
 function generateFileName(plannedDate, bidType, stationName, stationCode) {
-    return moment(plannedDate).format("YYYYMMDD") +
-        " пшеница" +
-        (bidType === 'SELL' ? " продавцы" : " покупатели") + " " +
-        (stationName ? stationName : "") +
-        (stationCode ? ("(" + stationCode + ")") : "") +
-        ".html"
+    console.log("!!!!!!!!!!!!!!!!!!!!! station name !!!!!!!!!!!!!!!!!!!! " + stationName);
+
+    return moment(plannedDate).format("YYYYMMDD")
+        + " пшеница "
+        + (bidType === 'SELL' ? "продавцы" : "покупатели")
+        + (stationName ? (" " + stationName) : "")
+        + (stationCode ? ("(" + stationCode + ")") : "")
+        + ".html"
 }
 
 module.exports = {

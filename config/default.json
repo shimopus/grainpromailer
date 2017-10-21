@@ -11,6 +11,7 @@
     "domain": null,
     "from_email": "p@grain.pro",
     "from_name": "GRAIN.PRO",
-    "subject": "GRAIN.PRO - Цены на пшеницу"
+    "subject": "GRAIN.PRO - Цены на пшеницу",
+    "emailTableRowsLimit": 5
   }
 }
