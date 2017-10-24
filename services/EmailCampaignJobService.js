@@ -1,11 +1,9 @@
 const agenda = require("../config/agenda");
-const moment = require("moment");
 const config = require("config");
 const restClient = require("../config/restClient");
 const Aigle = require('aigle');
-
-const nodemailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
+const sendEmailService = require("../services/SendEmailService");
+const emailCampaignDataStorageServcie = require("../services/EmailCampaignDataStorageService");
 
 agenda.define("email campaign start", (job, done) => {
     emailCampaignSendingJob(job.attrs.data)
@@ -20,11 +18,20 @@ agenda.define("email send", (job, done) => {
     let emailConfig = job.attrs.data.emailConfig;
     let emailCampaign = job.attrs.data.emailCampaign;
 
-    sendEmailJob(emailConfig, emailCampaign)
+    sendEmailService.sendEmailCampaign(emailConfig, emailCampaign)
         .then(() => done())
         .catch((err) => {
             console.dir(err);
             done(err);
+        });
+});
+
+agenda.define("clear job data", (job, done) => {
+    const emailCampaign = job.attrs.data;
+
+    emailCampaignDataStorageServcie.clearCampaignData(emailCampaign)
+        .then(() => {
+            done();
         });
 });
 
@@ -39,7 +46,6 @@ function emailCampaignSendingJob(emailCampaign) {
     let subscriptionConfigs;
 
     //должна брать список всех, кому отправлять и что отправлять,
-    console.log("try to connect: " + config.get("grainproadmin.url") + "/api/subscription-configs/getactive");
     return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
 
     //далее, подобрать уникальный набор станций
@@ -109,15 +115,23 @@ function emailCampaignSendingJob(emailCampaign) {
         .then((uniqueTables) => {
             console.log("3. Store email parameters");
 
+            let subscriptionConfigsPromises = [];
+
             subscriptionConfigs.forEach((subscriptionConfig) => {
                 let subscriptionType = subscriptionConfig.subscriptionType;
                 let stationCode = subscriptionConfig.stationCode;
 
-                subscriptionConfig.attachment = uniqueTables[subscriptionType][stationCode].attachment.data;
-                subscriptionConfig.email = uniqueTables[subscriptionType][stationCode].email.data;
+                subscriptionConfigsPromises.push(
+                    emailCampaignDataStorageServcie.storeCampaignData(emailCampaign, subscriptionConfig, {
+                        attachment: uniqueTables[subscriptionType][stationCode].attachment.data,
+                        email: uniqueTables[subscriptionType][stationCode].email.data
+                    }).then(() => {
+                        return subscriptionConfig;
+                    })
+                );
             });
 
-            return subscriptionConfigs;
+            return Aigle.resolve(subscriptionConfigsPromises).parallel();
         })
 
         //далее создать джобы на отсылку
@@ -128,47 +142,10 @@ function emailCampaignSendingJob(emailCampaign) {
                     emailCampaign: emailCampaign
                 });
             });
+
+            //запланировать очищение БД через семь дней
+            agenda.schedule("in 7 days", "clear job data", emailCampaign);
         });
-}
-
-function sendEmailJob(emailConfig, emailCampaign) {
-    console.log("Sending mail");
-
-    const auth = {
-        auth: {
-            api_key: config.get("mailgun.api_key"),
-            domain: config.get("mailgun.domain")
-        }
-    };
-
-    let nodemailerMailgun = nodemailer.createTransport(mg(auth));
-    return new Promise((resolve, reject) => {
-        console.dir(emailConfig);
-        nodemailerMailgun.sendMail({
-            from: {name: config.get("mailgun.from_name"), address: config.get("mailgun.from_email")},
-            to: emailConfig.contactEmail,
-            subject: config.get("mailgun.subject") + " " + moment(emailCampaign.plannedDate).format("DD.MM.YYYY"),
-            'h:Reply-To': config.get("mailgun.from_email"),
-            'o:tag' : ['email campaign', 'email campaign ' + moment(emailCampaign.plannedDate).format("DD.MM.YYYY")],
-            html: addTrackingImage(emailConfig.email.buffer.toString('utf8'),
-                emailConfig.partnerId, emailCampaign.plannedDate, "OPEN"),
-            attachments: [{
-                filename: generateFileName(emailCampaign.plannedDate, emailConfig.subscriptionType, emailConfig.stationName, emailConfig.stationCode),
-                content: addTrackingImage(emailConfig.attachment.buffer.toString('utf8'),
-                    emailConfig.partnerId, emailCampaign.plannedDate, "FILE_OPEN"),
-            }]
-        }, function (err, info) {
-            if (err) {
-                console.log('Error: ' + err);
-                reject(err);
-            }
-            else {
-                console.log('Response: ');
-                console.dir(info);
-                resolve();
-            }
-        });
-    });
 }
 
 function getTableForStationFunction(stationCode, subscriptionType) {
@@ -182,30 +159,6 @@ function getEmailForStationFunction(stationCode, subscriptionType) {
         + "/pages/market-table/email-inside?code=" + stationCode +
         "&bidType=" + subscriptionType +
         "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"));
-}
-
-function addTrackingImage(content, partnerId, date, type) {
-    content = "<div><img width=\"1px\" height=\"1px\" src=\"" +
-        config.get("grainproadmin.url") +
-        "/tracking/image/" +
-        partnerId + "" +
-        "/1x1.gif?date=" +
-        moment(date).format("DD-MM-YYYY") +
-        "&type=" +
-        type +
-        "\"/></div>" +
-        content;
-
-    return content;
-}
-
-function generateFileName(plannedDate, bidType, stationName, stationCode) {
-    return moment(plannedDate).format("YYYYMMDD")
-        + " пшеница "
-        + (bidType === 'SELL' ? "продавцы" : "покупатели")
-        + (stationName ? (" " + stationName) : "")
-        + (stationCode ? ("(" + stationCode + ")") : "")
-        + ".html"
 }
 
 module.exports = {
