@@ -48,7 +48,7 @@ function emailCampaignSendingJob(emailCampaign) {
 
     //должна брать список всех, кому отправлять и что отправлять,
     // return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
-    new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
         resolve({
             data: {
                 "id": 261954,
