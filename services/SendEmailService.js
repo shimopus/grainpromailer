@@ -18,7 +18,8 @@ function sendEmailCampaign(emailConfig, emailCampaign) {
                 nodemailerMailgun.sendMail({
                     from: {name: config.get("mailgun.from_name"), address: config.get("mailgun.from_email")},
                     to: emailConfig.contactEmail,
-                    subject: config.get("mailgun.subject") + " " + momentPlannedDate.format("DD.MM.YYYY"),
+                    subject: config.get("mailgun.subject") + " " + momentPlannedDate.format("DD.MM.YYYY") + ", станция "
+                        + emailConfig.stationName,
                     'h:Reply-To': config.get("mailgun.from_email"),
                     'o:tag' : ['email campaign', 'email campaign ' + momentPlannedDate.format("DD.MM.YYYY")],
                     html: emailTemplate.getHTML(emailJobData.email.toString('utf8'), emailConfig.stationName,
