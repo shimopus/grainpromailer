@@ -2,6 +2,7 @@ const nodemailerMailgun = require("../config/nodemailerMailgun");
 const moment = require("moment");
 const config = require("config");
 const emailCampaignDataStorageService = require("../services/EmailCampaignDataStorageService");
+const emailTemplate = require("emailTemplate");
 
 function sendEmailCampaign(emailConfig, emailCampaign) {
     console.log("Sending mail");
@@ -20,8 +21,8 @@ function sendEmailCampaign(emailConfig, emailCampaign) {
                     subject: config.get("mailgun.subject") + " " + momentPlannedDate.format("DD.MM.YYYY"),
                     'h:Reply-To': config.get("mailgun.from_email"),
                     'o:tag' : ['email campaign', 'email campaign ' + momentPlannedDate.format("DD.MM.YYYY")],
-                    html: addTrackingImage(emailJobData.email.toString('utf8'),
-                        emailConfig.partnerId, momentPlannedDate, "OPEN"),
+                    html: emailTemplate.getHTML(emailJobData.email.toString('utf8'),
+                        emailConfig.partnerId, momentPlannedDate.format("DD.MM.YYYY"), emailConfig.subscriptionType),
                     attachments: [{
                         filename: generateFileName(momentPlannedDate,
                             emailConfig.subscriptionType, emailConfig.stationName, emailConfig.stationCode),

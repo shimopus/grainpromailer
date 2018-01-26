@@ -10,8 +10,8 @@
     "api_key": null,
     "domain": null,
     "from_email": "p@grain.pro",
-    "from_name": "GRAIN.PRO",
-    "subject": "GRAIN.PRO - Цены на пшеницу",
+    "from_name": "Grain.pro",
+    "subject": "Спрос по пшенице на",
     "emailTableRowsLimit": 5
   }
 }
