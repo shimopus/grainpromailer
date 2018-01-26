@@ -50,7 +50,7 @@ function emailCampaignSendingJob(emailCampaign) {
     // return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
     return new Promise(function(resolve, reject) {
         resolve({
-            data: {
+            data: [{
                 "id": 261954,
                 "subscriptionType": "BUY",
                 "isActive": true,
@@ -64,7 +64,7 @@ function emailCampaignSendingJob(emailCampaign) {
                 "stationName": "Давлеканово (Кбш)",
                 "partnerId": 261950,
                 "partnerName": "Тест Сергей"
-            }
+            }]
         });
     })
 
