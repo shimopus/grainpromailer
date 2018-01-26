@@ -2,7 +2,7 @@ const nodemailerMailgun = require("../config/nodemailerMailgun");
 const moment = require("moment");
 const config = require("config");
 const emailCampaignDataStorageService = require("../services/EmailCampaignDataStorageService");
-const emailTemplate = require("emailTemplate");
+const emailTemplate = require("./emailTemplate");
 
 function sendEmailCampaign(emailConfig, emailCampaign) {
     console.log("Sending mail");
