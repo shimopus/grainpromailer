@@ -64,6 +64,48 @@ function emailCampaignSendingJob(emailCampaign) {
                 "stationName": "Давлеканово (Кбш)",
                 "partnerId": 261950,
                 "partnerName": "Тест Сергей"
+            },{
+                "id": 261955,
+                "subscriptionType": "BUY",
+                "isActive": true,
+                "creationDate": "2018-01-27T20:55:50.122Z",
+                "lastUpdateDate": "2018-01-27T20:55:50.122Z",
+                "contactId": 261951,
+                "contactPersonName": "Алексей",
+                "contactEmail": "alexpitsyk@gmail.com",
+                "stationId": 9022,
+                "stationCode": "657108",
+                "stationName": "Давлеканово (Кбш)",
+                "partnerId": 261950,
+                "partnerName": "Тест Сергей"
+            },{
+                "id": 261957,
+                "subscriptionType": "BUY",
+                "isActive": true,
+                "creationDate": "2018-01-27T20:55:50.122Z",
+                "lastUpdateDate": "2018-01-27T20:55:50.122Z",
+                "contactId": 261951,
+                "contactPersonName": "Павел",
+                "contactEmail": "tarkhanov.pv@gmail.com",
+                "stationId": 9022,
+                "stationCode": "657108",
+                "stationName": "Давлеканово (Кбш)",
+                "partnerId": 261950,
+                "partnerName": "Тест Сергей"
+            },{
+                "id": 261956,
+                "subscriptionType": "BUY",
+                "isActive": true,
+                "creationDate": "2018-01-27T20:55:50.122Z",
+                "lastUpdateDate": "2018-01-27T20:55:50.122Z",
+                "contactId": 261951,
+                "contactPersonName": "Алексей",
+                "contactEmail": "alexey.pitsyk@netcracker.com ",
+                "stationId": 9022,
+                "stationCode": "657108",
+                "stationName": "Давлеканово (Кбш)",
+                "partnerId": 261950,
+                "partnerName": "Тест Сергей"
             }]
         });
     })

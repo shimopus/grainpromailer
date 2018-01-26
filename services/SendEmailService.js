@@ -21,7 +21,7 @@ function sendEmailCampaign(emailConfig, emailCampaign) {
                     subject: config.get("mailgun.subject") + " " + momentPlannedDate.format("DD.MM.YYYY"),
                     'h:Reply-To': config.get("mailgun.from_email"),
                     'o:tag' : ['email campaign', 'email campaign ' + momentPlannedDate.format("DD.MM.YYYY")],
-                    html: emailTemplate.getHTML(emailJobData.email.toString('utf8'),
+                    html: emailTemplate.getHTML(emailJobData.email.toString('utf8'), emailConfig.stationName,
                         emailConfig.partnerId, momentPlannedDate.format("DD.MM.YYYY"), emailConfig.subscriptionType),
                     attachments: [{
                         filename: generateFileName(momentPlannedDate,

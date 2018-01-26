@@ -1,6 +1,6 @@
 const config = require("config");
 
-function getHTML(table, partnerId, date, type) {
+function getHTML(table, stationName, partnerId, date, type) {
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   <head>
@@ -547,7 +547,7 @@ function getHTML(table, partnerId, date, type) {
                   </div>
                   <br>
                   <br>
-                  <br><span style="font-size:22px"><span style="color:#000000"><strong>${type === 'BUY' ? 'Спрос' : 'Предложение'} по пшенице на ${date}</strong></span></span>
+                  <br><span style="font-size:22px"><span style="color:#000000"><strong>${type === 'BUY' ? 'Спрос' : 'Предложение'} на пшеницу ${date}, станция ${stationName}</strong></span></span>
                   ${table}
                   <p><a href="http://grain.pro/grain-buy/?from=email" style="margin-right:40px;"><span style="color:#21759b">Рассчитать цену объявления с доставкой на любую ж.д. станцию</span></a>
                   <br><a href="http://grain.pro/grain-sell/?from=email"><span style="color:#21759b">Предложение по пшенице</span></a>
