@@ -45,8 +45,28 @@ function emailCampaignSendingJob(emailCampaign) {
 
     let subscriptionConfigs;
 
+
     //должна брать список всех, кому отправлять и что отправлять,
-    return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
+    // return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
+    new Promise(function(resolve, reject) {
+        resolve({
+            data: {
+                "id": 261954,
+                "subscriptionType": "BUY",
+                "isActive": true,
+                "creationDate": "2018-01-27T20:55:50.122Z",
+                "lastUpdateDate": "2018-01-27T20:55:50.122Z",
+                "contactId": 261951,
+                "contactPersonName": "Сергей",
+                "contactEmail": "sergey@babinskiy.ru",
+                "stationId": 9022,
+                "stationCode": "657108",
+                "stationName": "Давлеканово (Кбш)",
+                "partnerId": 261950,
+                "partnerName": "Тест Сергей"
+            }
+        });
+    })
 
     //далее, подобрать уникальный набор станций
         .then((retObj) => {

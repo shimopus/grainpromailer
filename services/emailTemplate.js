@@ -550,7 +550,7 @@ function getHTML(table, partnerId, date, type) {
                   <br><span style="font-size:22px"><span style="color:#000000"><strong>${type === 'BUY' ? 'Спрос' : 'Предложение'} по пшенице на ${date}</strong></span></span>
                   ${table}
                   <p><a href="http://grain.pro/grain-buy/?from=email" style="margin-right:40px;"><span style="color:#21759b">Рассчитать цену объявления с доставкой на любую ж.д. станцию</span></a>
-                  <br><a href="http://grain.pro/grain-sell/?from=email"><span style="color:#21759b">Предложение на пшенице</span></a>
+                  <br><a href="http://grain.pro/grain-sell/?from=email"><span style="color:#21759b">Предложение по пшенице</span></a>
                   <br><a href="http://grain.pro/add-bid/?from=email"><span style="color:#21759b">Разместить свое объявление</span></a><span style="color:#21759b"> </span>
                 </p>
               </div>
