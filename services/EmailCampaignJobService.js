@@ -47,8 +47,11 @@ function emailCampaignSendingJob(emailCampaign) {
 
 
     //должна брать список всех, кому отправлять и что отправлять,
-    // return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
-    return new Promise(function(resolve, reject) {
+    //TODO: prod version
+    return restClient.getPromise(config.get("grainproadmin.url") + "/api/subscription-configs/getactive")
+
+    //TODO: test version
+    /*return new Promise(function(resolve, reject) {
         resolve({
             data: [{
                 "id": 261954,
@@ -108,7 +111,7 @@ function emailCampaignSendingJob(emailCampaign) {
                 "partnerName": "Тест Сергей"
             }]
         });
-    })
+    })*/
 
     //далее, подобрать уникальный набор станций
         .then((retObj) => {

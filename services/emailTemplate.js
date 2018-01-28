@@ -551,7 +551,8 @@ function getHTML(table, stationName, partnerId, date, type) {
                   ${table}
                   <p><a href="http://grain.pro/grain-buy/?from=email" style="margin-right:40px;"><span style="color:#21759b">Рассчитать цену объявления с доставкой на любую ж.д. станцию</span></a>
                   <br><a href="http://grain.pro/grain-sell/?from=email"><span style="color:#21759b">Предложение по пшенице</span></a>
-                  <br><a href="http://grain.pro/add-bid/?from=email"><span style="color:#21759b">Разместить свое объявление</span></a><span style="color:#21759b"> </span>
+                  <br><a href="http://grain.pro/add-bid/?from=email"><span style="color:#21759b">Разместить свое объявление</span></a>
+                  <br><a href="http://grain.pro/?from=email"><span style="color:#21759b">О сервисе Grain.pro</span></a><span style="color:#21759b"> </span>
                 </p>
               </div>
               <!-- // END MODULE: BODY CONTENT -->
