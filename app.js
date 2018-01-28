@@ -146,7 +146,15 @@ app.post('/account/password', passportConfig.isAuthenticated, userController.pos
 app.post('/account/delete', passportConfig.isAuthenticated, userController.postDeleteAccount);
 app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userController.getOauthUnlink);
 app.post('/emailCampaign/create', emailCampaignController.postCreateEmailCampaign);
-app.use('/agenda', Agendash(agenda));
+app.use('/agenda', function (req, res, next) {
+        if (!req.isAuthenticated()) {
+            res.send(401);
+        } else {
+            next();
+        }
+    },
+    Agendash(agenda)
+);
 
 /**
  * API examples routes.
