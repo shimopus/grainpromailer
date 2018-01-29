@@ -154,22 +154,17 @@ function emailCampaignSendingJob(emailCampaign) {
                 SELL: {}
             };
 
-            Aigle.resolve(uniqueStations.BUY).mapLimit(1, (stationCode) =>
+            return Aigle.resolve(uniqueStations.BUY).mapLimit(1, (stationCode) =>
                 uniqueTableFunctions.BUY[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "BUY"),
                     email: getEmailForStationFunction(stationCode, "BUY")
-                }).all()
+                }).parallel()
             ).then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
                 uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "SELL"),
                     email: getEmailForStationFunction(stationCode, "SELL")
-                }).all()
-            ));
-
-            return Aigle.resolve({
-                BUY: Aigle.resolve(uniqueTableFunctions.BUY).all(),
-                SELL: Aigle.resolve(uniqueTableFunctions.SELL).all(),
-            }).all();
+                }).parallel()
+            )).then(() => uniqueTableFunctions);
         })
 
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
