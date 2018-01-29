@@ -188,9 +188,9 @@ function emailCampaignSendingJob(emailCampaign) {
                 subscriptionConfigsPromises.push(
                     emailCampaignDataStorageServcie.storeCampaignData(emailCampaign, subscriptionConfig, {
                         attachment: Aigle.resolve(uniqueTables[subscriptionType][stationCode].attachment)
-                            .then((attachmentResp) => attachmentResp.data),
+                            .then((attachmentFnc) => attachmentFnc()).then((attachmentResp) => attachmentResp.data),
                         email: Aigle.resolve(uniqueTables[subscriptionType][stationCode].email)
-                            .then((emailResp) => emailResp.data)
+                            .then((emailFnc) => emailFnc()).then((emailResp) => emailResp.data)
                     }).then(() => {
                         return subscriptionConfig;
                     })
@@ -216,6 +216,7 @@ function emailCampaignSendingJob(emailCampaign) {
 
 function getTableForStationFunction(stationCode, subscriptionType) {
     return function() {
+        console.log("!!!!! SEBA !!! File promise");
         restClient.getPromise(config.get("grainproadmin.url")
             + "/pages/market-table/download?code=" + stationCode +
             "&bidType=" + subscriptionType).then(() => console.log("!!!!! SEBA !!! Download file"));
@@ -224,6 +225,7 @@ function getTableForStationFunction(stationCode, subscriptionType) {
 
 function getEmailForStationFunction(stationCode, subscriptionType) {
     return function() {
+        console.log("!!!!! SEBA !!! Email promise");
         restClient.getPromise(config.get("grainproadmin.url")
             + "/pages/market-table/email-inside?code=" + stationCode +
             "&bidType=" + subscriptionType +
