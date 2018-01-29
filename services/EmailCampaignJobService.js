@@ -154,18 +154,18 @@ function emailCampaignSendingJob(emailCampaign) {
                 SELL: {}
             };
 
-            uniqueStations.BUY.map((stationCode) =>
+            Aigle.resolve(uniqueStations.BUY).mapLimit(2, (stationCode) =>
                 uniqueTableFunctions.BUY[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "BUY"),
                     email: getEmailForStationFunction(stationCode, "BUY")
-                })//.parallel()
+                }).parallel()
             );
 
-            uniqueStations.SELL.map((stationCode) =>
+            Aigle.resolve(uniqueStations.SELL).mapLimit(2, (stationCode) =>
                 uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "SELL"),
                     email: getEmailForStationFunction(stationCode, "SELL")
-                })//.parallel()
+                }).parallel()
             );
 
             return Aigle.resolve({
@@ -187,17 +187,15 @@ function emailCampaignSendingJob(emailCampaign) {
 
                 subscriptionConfigsPromises.push(
                     emailCampaignDataStorageServcie.storeCampaignData(emailCampaign, subscriptionConfig, {
-                        attachment: Aigle.resolve(uniqueTables[subscriptionType][stationCode].attachment)
-                            .then((attachmentFnc) => attachmentFnc()).then((attachmentResp) => attachmentResp.data),
-                        email: Aigle.resolve(uniqueTables[subscriptionType][stationCode].email)
-                            .then((emailFnc) => emailFnc()).then((emailResp) => emailResp.data)
+                        attachment: uniqueTables[subscriptionType][stationCode].attachment.data,
+                        email: uniqueTables[subscriptionType][stationCode].email.data
                     }).then(() => {
                         return subscriptionConfig;
                     })
                 );
             });
 
-            return Aigle.resolve(subscriptionConfigsPromises).eachLimit(2);
+            return Aigle.resolve(subscriptionConfigsPromises).parallel();
         })
 
         //далее создать джобы на отсылку
@@ -215,23 +213,18 @@ function emailCampaignSendingJob(emailCampaign) {
 }
 
 function getTableForStationFunction(stationCode, subscriptionType) {
-    return function() {
-        console.log("!!!!! SEBA !!! File promise");
-        restClient.getPromise(config.get("grainproadmin.url")
+    return restClient.getPromise(config.get("grainproadmin.url")
             + "/pages/market-table/download?code=" + stationCode +
             "&bidType=" + subscriptionType).then(() => console.log("!!!!! SEBA !!! Download file"));
-    }
 }
 
 function getEmailForStationFunction(stationCode, subscriptionType) {
-    return function() {
-        console.log("!!!!! SEBA !!! Email promise");
-        restClient.getPromise(config.get("grainproadmin.url")
+    return restClient.getPromise(config.get("grainproadmin.url")
             + "/pages/market-table/email-inside?code=" + stationCode +
             "&bidType=" + subscriptionType +
             "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"))
             .then(() => console.log("!!!!! SEBA !!! Download email"));
-    }
+
 }
 
 function parallelAndDelayDataGeneration(uniqueTableFunctions) {
