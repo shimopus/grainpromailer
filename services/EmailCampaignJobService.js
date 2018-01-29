@@ -154,19 +154,17 @@ function emailCampaignSendingJob(emailCampaign) {
                 SELL: {}
             };
 
-            Aigle.resolve(uniqueStations.BUY).mapLimit(2, (stationCode) =>
+            Aigle.resolve(uniqueStations.BUY).mapLimit(1, (stationCode) =>
                 uniqueTableFunctions.BUY[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "BUY"),
                     email: getEmailForStationFunction(stationCode, "BUY")
                 }).parallel()
-            );
-
-            Aigle.resolve(uniqueStations.SELL).mapLimit(2, (stationCode) =>
+            ).then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
                 uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "SELL"),
                     email: getEmailForStationFunction(stationCode, "SELL")
                 }).parallel()
-            );
+            ));
 
             return Aigle.resolve({
                 BUY: Aigle.resolve(uniqueTableFunctions.BUY)/*.parallel()*/,
