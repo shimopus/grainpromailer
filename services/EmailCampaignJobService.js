@@ -5,6 +5,8 @@ const Aigle = require('aigle');
 const sendEmailService = require("../services/SendEmailService");
 const emailCampaignDataStorageServcie = require("../services/EmailCampaignDataStorageService");
 
+const PARALLEL_DOWNLOADS = 3;
+
 agenda.define("email campaign start", (job, done) => {
     emailCampaignSendingJob(job.attrs.data)
         .then(() => done())
@@ -156,24 +158,21 @@ function emailCampaignSendingJob(emailCampaign) {
                 uniqueTableFunctions.BUY[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "BUY"),
                     email: getEmailForStationFunction(stationCode, "BUY")
-                }).parallel()
+                })//.parallel()
             );
 
-            uniqueStations.SELL.map((stationCode) => {
+            uniqueStations.SELL.map((stationCode) =>
                 uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "SELL"),
                     email: getEmailForStationFunction(stationCode, "SELL")
-                }).parallel()
-            });
-
-            console.log("2. Unique functions");
-            console.dir(uniqueTableFunctions);
+                })//.parallel()
+            );
 
             return Aigle.resolve({
-                BUY: Aigle.resolve(uniqueTableFunctions.BUY).parallel(),
-                SELL: Aigle.resolve(uniqueTableFunctions.SELL).parallel(),
+                BUY: Aigle.resolve(uniqueTableFunctions.BUY)/*.parallel()*/,
+                SELL: Aigle.resolve(uniqueTableFunctions.SELL)/*.parallel()*/,
             })
-                .parallel();
+                /*.parallel()*/;
         })
 
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
@@ -200,7 +199,7 @@ function emailCampaignSendingJob(emailCampaign) {
         })
 
         //далее создать джобы на отсылку
-        .then((subscriptionConfigs) => {
+        /*.then((subscriptionConfigs) => {
             subscriptionConfigs.forEach((subscriptionConfig) => {
                 agenda.now("email send", {
                     emailConfig: subscriptionConfig,
@@ -210,20 +209,53 @@ function emailCampaignSendingJob(emailCampaign) {
 
             //запланировать очищение БД через семь дней
             agenda.schedule("in 7 days", "clear job data", emailCampaign);
-        });
+        })*/;
 }
 
 function getTableForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/download?code=" + stationCode +
-        "&bidType=" + subscriptionType);
+        "&bidType=" + subscriptionType).then(() => console.log("!!!!! SEBA !!! Download file"));
 }
 
 function getEmailForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/email-inside?code=" + stationCode +
         "&bidType=" + subscriptionType +
-        "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"));
+        "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"))
+        .then(() => console.log("!!!!! SEBA !!! Download email"));
+}
+
+function parallelAndDelayDataGeneration(uniqueTableFunctions) {
+    let localQueue = [];
+
+    let jobBatch = [];
+    uniqueTableFunctions.BUY.map((jobItem) => {
+        if (jobBatch.length < PARALLEL_DOWNLOADS) {
+            jobBatch.push(jobItem);
+        } else {
+            localQueue.push(jobBatch);
+            jobBatch = [];
+        }
+    });
+
+    jobBatch = [];
+    uniqueTableFunctions.SELL.map((jobItem) => {
+        if (jobBatch.length < PARALLEL_DOWNLOADS) {
+            jobBatch.push(jobItem);
+        } else {
+            localQueue.push(jobBatch);
+            jobBatch = [];
+        }
+    });
+
+
+
+    Aigle.resolve({
+        BUY: Aigle.resolve(uniqueTableFunctions.BUY).parallel(),
+        SELL: Aigle.resolve(uniqueTableFunctions.SELL).parallel(),
+    })
+        .parallel();
 }
 
 module.exports = {
