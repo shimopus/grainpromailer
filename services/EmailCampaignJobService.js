@@ -144,7 +144,7 @@ function emailCampaignSendingJob(emailCampaign) {
 
             //запланировать очищение БД через семь дней
             agenda.schedule("in 7 days", "clear job data", emailCampaign);
-        }) */;
+        })*/;
 }
 
 function getTableForStationFunction(stationCode, subscriptionType) {
