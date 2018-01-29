@@ -172,12 +172,7 @@ function emailCampaignSendingJob(emailCampaign) {
                 BUY: Aigle.resolve(uniqueTableFunctions.BUY)/*.parallel()*/,
                 SELL: Aigle.resolve(uniqueTableFunctions.SELL)/*.parallel()*/,
             })
-                .mapLimit(PARALLEL_DOWNLOADS, (ajaxFnc) => {
-                    console.log("try limit");
-                    console.dir(ajaxFnc);
-                    return ajaxFnc();
-                })
-                /*.parallel()*/;
+                .parallel();
         })
 
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
@@ -192,15 +187,17 @@ function emailCampaignSendingJob(emailCampaign) {
 
                 subscriptionConfigsPromises.push(
                     emailCampaignDataStorageServcie.storeCampaignData(emailCampaign, subscriptionConfig, {
-                        attachment: uniqueTables[subscriptionType][stationCode].attachment.data,
-                        email: uniqueTables[subscriptionType][stationCode].email.data
+                        attachment: Aigle.resolve(uniqueTables[subscriptionType][stationCode].attachment)
+                            .then((attachmentResp) => attachmentResp.data),
+                        email: Aigle.resolve(uniqueTables[subscriptionType][stationCode].email)
+                            .then((emailResp) => emailResp.data)
                     }).then(() => {
                         return subscriptionConfig;
                     })
                 );
             });
 
-            return Aigle.resolve(subscriptionConfigsPromises).parallel();
+            return Aigle.resolve(subscriptionConfigsPromises).eachLimit(2);
         })
 
         //далее создать джобы на отсылку
