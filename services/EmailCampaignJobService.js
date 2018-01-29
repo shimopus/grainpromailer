@@ -173,6 +173,8 @@ function emailCampaignSendingJob(emailCampaign) {
                 SELL: Aigle.resolve(uniqueTableFunctions.SELL)/*.parallel()*/,
             })
                 .eachLimit(PARALLEL_DOWNLOADS, (ajaxFnc) => {
+                    console.log("try limit");
+                    console.dir(ajaxFnc);
                     return ajaxFnc();
                 })
                 /*.parallel()*/;
