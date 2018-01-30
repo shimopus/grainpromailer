@@ -211,7 +211,7 @@ function emailCampaignSendingJob(emailCampaign) {
 function getTableForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/download?code=" + stationCode +
-        "&bidType=" + subscriptionType).then(() => console.log("!!!!! SEBA !!! Download file"));
+        "&bidType=" + subscriptionType);
 }
 
 function getEmailForStationFunction(stationCode, subscriptionType) {
@@ -219,7 +219,6 @@ function getEmailForStationFunction(stationCode, subscriptionType) {
         + "/pages/market-table/email-inside?code=" + stationCode +
         "&bidType=" + subscriptionType +
         "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"))
-        .then(() => console.log("!!!!! SEBA !!! Download email"));
 
 }
 
