@@ -161,10 +161,12 @@ function emailCampaignSendingJob(emailCampaign) {
                 }).parallel()
             )
                 .then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
-                    uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
+                    Aigle.resolve({
                         attachment: getTableForStationFunction(stationCode, "SELL"),
                         email: getEmailForStationFunction(stationCode, "SELL")
-                    }).parallel()
+                    })
+                        .parallel()
+                        .then((tables) => uniqueTableFunctions.SELL[stationCode] = tables)
                 ))
                 .parallel()
                 .then(() => uniqueTableFunctions);
