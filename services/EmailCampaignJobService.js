@@ -170,6 +170,7 @@ function emailCampaignSendingJob(emailCampaign) {
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
         .then((uniqueTables) => {
             console.log("3. Store email parameters");
+            console.dir(uniqueTables);
 
             let subscriptionConfigsPromises = [];
 
