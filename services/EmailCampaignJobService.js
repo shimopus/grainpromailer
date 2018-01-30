@@ -159,12 +159,15 @@ function emailCampaignSendingJob(emailCampaign) {
                     attachment: getTableForStationFunction(stationCode, "BUY"),
                     email: getEmailForStationFunction(stationCode, "BUY")
                 }).parallel()
-            ).then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
-                uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
-                    attachment: getTableForStationFunction(stationCode, "SELL"),
-                    email: getEmailForStationFunction(stationCode, "SELL")
-                }).parallel()
-            )).then(() => uniqueTableFunctions).all();
+            )
+                .every()
+                .then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
+                    uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
+                        attachment: getTableForStationFunction(stationCode, "SELL"),
+                        email: getEmailForStationFunction(stationCode, "SELL")
+                    }).parallel()
+                ))
+                .then(() => uniqueTableFunctions);
         })
 
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
@@ -207,16 +210,16 @@ function emailCampaignSendingJob(emailCampaign) {
 
 function getTableForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
-            + "/pages/market-table/download?code=" + stationCode +
-            "&bidType=" + subscriptionType).then(() => console.log("!!!!! SEBA !!! Download file"));
+        + "/pages/market-table/download?code=" + stationCode +
+        "&bidType=" + subscriptionType).then(() => console.log("!!!!! SEBA !!! Download file"));
 }
 
 function getEmailForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
-            + "/pages/market-table/email-inside?code=" + stationCode +
-            "&bidType=" + subscriptionType +
-            "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"))
-            .then(() => console.log("!!!!! SEBA !!! Download email"));
+        + "/pages/market-table/email-inside?code=" + stationCode +
+        "&bidType=" + subscriptionType +
+        "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"))
+        .then(() => console.log("!!!!! SEBA !!! Download email"));
 
 }
 
@@ -242,7 +245,6 @@ function parallelAndDelayDataGeneration(uniqueTableFunctions) {
             jobBatch = [];
         }
     });
-
 
 
     Aigle.resolve({
