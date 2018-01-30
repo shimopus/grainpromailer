@@ -160,14 +160,14 @@ function emailCampaignSendingJob(emailCampaign) {
                     email: getEmailForStationFunction(stationCode, "BUY")
                 }).parallel()
             )
-                .every()
                 .then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
                     uniqueTableFunctions.SELL[stationCode] = Aigle.resolve({
                         attachment: getTableForStationFunction(stationCode, "SELL"),
                         email: getEmailForStationFunction(stationCode, "SELL")
                     }).parallel()
                 ))
-                .then(() => uniqueTableFunctions);
+                .then(() => uniqueTableFunctions)
+                .every((item) => console.dir(item));
         })
 
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
