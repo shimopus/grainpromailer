@@ -5,7 +5,7 @@ const Aigle = require('aigle');
 const sendEmailService = require("../services/SendEmailService");
 const emailCampaignDataStorageServcie = require("../services/EmailCampaignDataStorageService");
 
-const PARALLEL_DOWNLOADS = 3;
+const PARALLEL_DOWNLOADS = 2;
 
 agenda.define("email campaign start", (job, done) => {
     emailCampaignSendingJob(job.attrs.data)
@@ -154,7 +154,7 @@ function emailCampaignSendingJob(emailCampaign) {
                 SELL: {}
             };
 
-            return Aigle.resolve(uniqueStations.BUY).mapLimit(1, (stationCode) =>
+            return Aigle.resolve(uniqueStations.BUY).mapLimit(PARALLEL_DOWNLOADS, (stationCode) =>
                 Aigle.resolve({
                     attachment: getTableForStationFunction(stationCode, "BUY"),
                     email: getEmailForStationFunction(stationCode, "BUY")
@@ -162,7 +162,7 @@ function emailCampaignSendingJob(emailCampaign) {
                     .parallel()
                     .then((tables) => uniqueTableFunctions.BUY[stationCode] = tables)
             )
-                .then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(1, (stationCode) =>
+                .then(() => Aigle.resolve(uniqueStations.SELL).mapLimit(PARALLEL_DOWNLOADS, (stationCode) =>
                     Aigle.resolve({
                         attachment: getTableForStationFunction(stationCode, "SELL"),
                         email: getEmailForStationFunction(stationCode, "SELL")
