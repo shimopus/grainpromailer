@@ -12,6 +12,9 @@
     "from_email": "p@grain.pro",
     "from_name": "Grain.pro",
     "subject": "Спрос на пшеницу",
-    "emailTableRowsLimit": 5
+  },
+  "email_job": {
+    "emailTableRowsLimit": 5,
+    "parallelFilesDownload": 2
   }
 }

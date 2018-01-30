@@ -5,7 +5,7 @@ const Aigle = require('aigle');
 const sendEmailService = require("../services/SendEmailService");
 const emailCampaignDataStorageServcie = require("../services/EmailCampaignDataStorageService");
 
-const PARALLEL_DOWNLOADS = 2;
+const PARALLEL_DOWNLOADS = config.get("email_job.parallelFilesDownload");
 
 agenda.define("email campaign start", (job, done) => {
     emailCampaignSendingJob(job.attrs.data)
@@ -198,7 +198,7 @@ function emailCampaignSendingJob(emailCampaign) {
         })
 
         //далее создать джобы на отсылку
-        /*.then((subscriptionConfigs) => {
+        .then((subscriptionConfigs) => {
             subscriptionConfigs.forEach((subscriptionConfig) => {
                 agenda.now("email send", {
                     emailConfig: subscriptionConfig,
@@ -208,7 +208,7 @@ function emailCampaignSendingJob(emailCampaign) {
 
             //запланировать очищение БД через семь дней
             agenda.schedule("in 7 days", "clear job data", emailCampaign);
-        }) */;
+        }) ;
 }
 
 function getTableForStationFunction(stationCode, subscriptionType) {
@@ -221,39 +221,8 @@ function getEmailForStationFunction(stationCode, subscriptionType) {
     return restClient.getPromise(config.get("grainproadmin.url")
         + "/pages/market-table/email-inside?code=" + stationCode +
         "&bidType=" + subscriptionType +
-        "&rowsLimit=" + config.get("mailgun.emailTableRowsLimit"))
+        "&rowsLimit=" + config.get("email_job.emailTableRowsLimit"))
 
-}
-
-function parallelAndDelayDataGeneration(uniqueTableFunctions) {
-    let localQueue = [];
-
-    let jobBatch = [];
-    uniqueTableFunctions.BUY.map((jobItem) => {
-        if (jobBatch.length < PARALLEL_DOWNLOADS) {
-            jobBatch.push(jobItem);
-        } else {
-            localQueue.push(jobBatch);
-            jobBatch = [];
-        }
-    });
-
-    jobBatch = [];
-    uniqueTableFunctions.SELL.map((jobItem) => {
-        if (jobBatch.length < PARALLEL_DOWNLOADS) {
-            jobBatch.push(jobItem);
-        } else {
-            localQueue.push(jobBatch);
-            jobBatch = [];
-        }
-    });
-
-
-    Aigle.resolve({
-        BUY: Aigle.resolve(uniqueTableFunctions.BUY).parallel(),
-        SELL: Aigle.resolve(uniqueTableFunctions.SELL).parallel(),
-    })
-        .parallel();
 }
 
 module.exports = {
