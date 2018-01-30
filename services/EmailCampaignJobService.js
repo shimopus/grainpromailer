@@ -166,8 +166,8 @@ function emailCampaignSendingJob(emailCampaign) {
                         email: getEmailForStationFunction(stationCode, "SELL")
                     }).parallel()
                 ))
-                .then(() => uniqueTableFunctions)
-                .every((item) => console.dir(item));
+                .every((item) => item)
+                .then(() => uniqueTableFunctions);
         })
 
         //далее, сложить конфиг получателя и его таблицу в список джоб на отсылку писем.
