@@ -11,7 +11,7 @@
     "domain": null,
     "from_email": "p@grain.pro",
     "from_name": "Grain.pro",
-    "subject": "Спрос на пшеницу",
+    "subject": "Спрос на пшеницу"
   },
   "email_job": {
     "emailTableRowsLimit": 5,
