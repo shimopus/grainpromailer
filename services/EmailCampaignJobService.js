@@ -198,7 +198,7 @@ function emailCampaignSendingJob(emailCampaign) {
         })
 
         //далее создать джобы на отсылку
-        .then((subscriptionConfigs) => {
+        /*.then((subscriptionConfigs) => {
             subscriptionConfigs.forEach((subscriptionConfig) => {
                 agenda.now("email send", {
                     emailConfig: subscriptionConfig,
@@ -208,7 +208,7 @@ function emailCampaignSendingJob(emailCampaign) {
 
             //запланировать очищение БД через семь дней
             agenda.schedule("in 7 days", "clear job data", emailCampaign);
-        }) ;
+        })*/ ;
 }
 
 function getTableForStationFunction(stationCode, subscriptionType) {
