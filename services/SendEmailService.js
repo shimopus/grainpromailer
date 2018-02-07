@@ -13,6 +13,8 @@ function sendEmailCampaign(emailConfig, emailCampaign) {
                 console.dir(emailConfig);
                 console.dir(emailJobData);
 
+                checkEmailValidity();
+
                 let momentPlannedDate = moment(emailCampaign.plannedDate);
 
                 nodemailerMailgun.sendMail({
@@ -68,6 +70,19 @@ function generateFileName(momentPlannedDate, bidType, stationName, stationCode) 
         + (stationName ? (" " + stationName) : "")
         + (stationCode ? ("(" + stationCode + ")") : "")
         + ".html"
+}
+
+function checkEmailValidity(emailConfig, emailJobData) {
+    //Check the Application Error title in the email and/or attach
+    let emailStr = emailJobData.email.toString('utf8');
+    let attachStr = emailJobData.attachment.toString('utf8');
+    if (emailStr.indexOf("<title>Application Error</title>") >= 0
+        || emailStr <= 600 /*bytes - the size of empty email content*/
+        || attachStr.indexOf("<title>Application Error</title>") >= 0
+        || attachStr <= 600 /*bytes - the size of empty email content*/) {
+
+        throw new Error("The generated email or attachment contains Application Error or size is less then 600 bytes")
+    }
 }
 
 module.exports = {
