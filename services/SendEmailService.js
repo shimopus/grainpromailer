@@ -13,7 +13,7 @@ function sendEmailCampaign(emailConfig, emailCampaign) {
                 console.dir(emailConfig);
                 console.dir(emailJobData);
 
-                checkEmailValidity();
+                checkEmailValidity(emailConfig, emailJobData);
 
                 let momentPlannedDate = moment(emailCampaign.plannedDate);
 
